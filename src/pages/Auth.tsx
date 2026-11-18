@@ -112,7 +112,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       <div className="relative grid min-h-screen lg:grid-cols-[1.02fr_0.98fr]">
         <aside className="relative hidden flex-col justify-between overflow-hidden border-r border-white/[0.06] p-10 lg:flex">
           <div className="flex items-center justify-between">
-            <Link to="/" aria-label="Nexus home">
+            <Link to="/" aria-label="Hub Agent Net home">
               <Logo />
             </Link>
             <Link
@@ -128,22 +128,22 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
             <div className="pointer-events-none absolute -left-10 top-10 size-[380px] rounded-full bg-cyan-400/10 blur-[100px]" />
             <p className="relative flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-cyan-300/80">
               <Sparkles className="size-3.5" />
-              Nexus workspace
+              Hub Agent Net
             </p>
             <h1 className="relative mt-4 max-w-md font-display text-[38px] font-semibold leading-[1.08]">
-              The building is
+              The whole team,
               <br />
-              <span className="text-gradient-cyan">on the other side.</span>
+              <span className="text-gradient-cyan">one sign-in away.</span>
             </h1>
             <p className="relative mt-4 max-w-sm text-[12.5px] leading-relaxed text-slate-400">
-              Sign in to open the live 3D floor, check desk occupancy and read the
-              dashboard your team runs on.
+              Post an update, find a shared resource, book a room and see who is on
+              the floor — all from the same private workspace.
             </p>
 
             <div className="relative mt-8 grid max-w-md grid-cols-2 gap-2.5">
               {[
-                { icon: Boxes, label: "Interactive 3D floor" },
-                { icon: ShieldCheck, label: "Private staff workspace" },
+                { icon: Boxes, label: "Feed, catalog and bookings" },
+                { icon: ShieldCheck, label: "Private team workspace" },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -158,14 +158,14 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
 
           <div className="relative flex items-center gap-3 text-[10px] text-muted-foreground">
             <span className="size-1.5 rounded-full bg-emerald-400" />
-            Floor sensors synced · Level 04
+            Team workspace · Level 04
           </div>
         </aside>
 
         <main className="flex items-center justify-center px-5 py-10 sm:px-8">
           <div className="w-full max-w-[400px]">
             <div className="mb-8 flex items-center justify-between lg:hidden">
-              <Link to="/" aria-label="Nexus home">
+              <Link to="/" aria-label="Hub Agent Net home">
                 <Logo />
               </Link>
               <Link
@@ -182,10 +182,11 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                   <div className="flex items-start justify-between">
                     <div>
                       <h2 className="font-display text-xl font-semibold">
-                        Sign in to Nexus
+                        Sign in to Hub Agent Net
                       </h2>
-                      <p className="mt-1 text-[11.5px] text-muted-foreground">
-                        Use your work email — we will send a one-time code.
+                      <p className="mt-1 text-[11.5px] leading-relaxed text-muted-foreground">
+                        Use your work email and we will send a one-time code. New
+                        here? An account is created automatically.
                       </p>
                     </div>
                     <span className="grid size-9 shrink-0 place-items-center rounded-xl border border-cyan-300/20 bg-cyan-400/10 text-cyan-300">
@@ -207,7 +208,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                         name="email"
                         type="email"
                         autoComplete="email"
-                        placeholder="you@nexusoffice.io"
+                        placeholder="you@hubagentnet.io"
                         required
                         disabled={isLoading}
                         className="h-11 w-full rounded-xl border border-white/10 bg-white/[0.04] pl-10 pr-3 text-[12.5px] text-white outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-cyan-300/45 focus:bg-white/[0.06] disabled:opacity-60"
@@ -257,8 +258,8 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                     </button>
 
                     <p className="mt-4 text-center text-[10px] leading-relaxed text-muted-foreground">
-                      Guest access is for exploring this prototype. Live staff
-                      accounts arrive with the Firestore rollout.
+                      Guest access is for exploring this prototype. Team
+                      accounts sign in with a work email and one-time code.
                     </p>
                   </form>
                 </>
@@ -344,7 +345,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
 
             <div className="mt-4 flex items-center justify-center gap-1.5 text-[9.5px] text-muted-foreground">
               <ShieldCheck className="size-3" />
-              Secured by Convex Auth · Nexus OS v1
+              Secured by Convex Auth · Hub Agent Net
             </div>
           </div>
         </main>

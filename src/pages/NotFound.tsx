@@ -15,11 +15,11 @@ export default function NotFound() {
           404
         </p>
         <h1 className="mt-2 font-display text-xl font-semibold">
-          This room is not on the floor plan
+          This page is not in the hub
         </h1>
         <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">
-          The page you asked for does not exist. Head back to the workspace or
-          open the 3D office instead.
+          The link may be out of date. Head back to your dashboard, browse the
+          catalog, or open the 3D office instead.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Link
@@ -30,11 +30,11 @@ export default function NotFound() {
             Back to dashboard
           </Link>
           <Link
-            to="/office"
+            to="/catalog"
             className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-[11px] font-medium text-slate-200 transition-colors hover:bg-white/[0.07]"
           >
             <Boxes className="size-3.5 text-cyan-300" />
-            Open 3D office
+            Browse the catalog
           </Link>
         </div>
       </div>

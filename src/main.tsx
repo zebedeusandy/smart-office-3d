@@ -14,6 +14,11 @@ const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
 const Office = lazy(() => import("./pages/Office.tsx"));
+const Feed = lazy(() => import("./pages/Feed.tsx"));
+const Catalog = lazy(() => import("./pages/Catalog.tsx"));
+const CatalogItemPage = lazy(() => import("./pages/CatalogItem.tsx"));
+const Bookings = lazy(() => import("./pages/Bookings.tsx"));
+const Admin = lazy(() => import("./pages/Admin.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -138,6 +143,46 @@ createRoot(document.getElementById("root")!).render(
                 element={
                   <RequireAuth redirectImmediately>
                     <Office />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/feed"
+                element={
+                  <RequireAuth redirectImmediately>
+                    <Feed />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/catalog"
+                element={
+                  <RequireAuth redirectImmediately>
+                    <Catalog />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/catalog/:itemId"
+                element={
+                  <RequireAuth redirectImmediately>
+                    <CatalogItemPage />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/bookings"
+                element={
+                  <RequireAuth redirectImmediately>
+                    <Bookings />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <RequireAuth redirectImmediately>
+                    <Admin />
                   </RequireAuth>
                 }
               />

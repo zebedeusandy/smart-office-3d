@@ -124,7 +124,7 @@ export function EmployeeDetailPanel({
           <DetailRow icon={Briefcase} label="Current focus">
             {employee.focus}
           </DetailRow>
-          <DetailRow icon={CalendarDays} label="With NEXUS since">
+          <DetailRow icon={CalendarDays} label="With the team since">
             {joinedLabel(employee.joinedAt)}
           </DetailRow>
           <DetailRow icon={Mail} label="Email">

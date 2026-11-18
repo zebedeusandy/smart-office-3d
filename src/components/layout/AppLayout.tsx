@@ -26,7 +26,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Navigation</SheetTitle>
-            <SheetDescription>Nexus OS workspace navigation</SheetDescription>
+            <SheetDescription>Hub Agent Net workspace navigation</SheetDescription>
           </SheetHeader>
           <SidebarBody onNavigate={() => setMobileOpen(false)} />
         </SheetContent>

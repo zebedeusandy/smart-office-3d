@@ -1,11 +1,11 @@
 {
-  "name": "freebuff.com application",
-  "short_name": "freebuff.com",
-  "description": "freebuff.com application",
+  "name": "Hub Agent Net",
+  "short_name": "Hub Agent Net",
+  "description": "The internal workspace for team updates, shared resources, room bookings and the live office floor.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#050c18",
+  "theme_color": "#050c18",
   "icons": [
     {
       "src": "/logo.svg",

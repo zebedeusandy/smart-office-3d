@@ -3,13 +3,16 @@ import { useNavigate } from "react-router";
 import {
   Bell,
   Boxes,
+  CalendarClock,
   CircleHelp,
   CircleUserRound,
   Command,
   LayoutDashboard,
   LogOut,
   Menu,
+  MessagesSquare,
   Search,
+  ShieldCheck,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -36,6 +39,8 @@ import { NotificationPanel } from "@/components/notifications/NotificationPanel"
 import { GlobalSearch } from "@/components/search/GlobalSearch";
 import { useAuth } from "@/hooks/use-auth";
 import { useDashboardData, useOfficeSnapshot } from "@/hooks/use-office-data";
+import { useHubData } from "@/hooks/use-hub-data";
+import { displayNameFor, initialsFor } from "@/lib/hub-utils";
 import type { AppNotification } from "@/types/office";
 import { cn } from "@/lib/utils";
 
@@ -52,6 +57,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
   const { user, signOut } = useAuth();
   const { data: office } = useOfficeSnapshot();
   const { data: dashboard } = useDashboardData();
+  const { data: hub } = useHubData();
   const [now, setNow] = useState(() => new Date());
   const [searchOpen, setSearchOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -78,17 +84,9 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
   }, []);
 
   const unread = notifications.filter((item) => !item.read).length;
-  const displayName = user?.name?.trim() || "Guest workspace";
-  const displayEmail = user?.email || "Signed in anonymously";
-  const initials = useMemo(() => {
-    const source = user?.name?.trim();
-    if (!source) return "NX";
-    return source
-      .split(/\s+/)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase() ?? "")
-      .join("");
-  }, [user?.name]);
+  const displayName = displayNameFor(user);
+  const displayEmail = user?.email || "Signed in as a guest";
+  const initials = useMemo(() => initialsFor(displayName), [displayName]);
 
   const dateLabel = now.toLocaleDateString("en-US", {
     weekday: "short",
@@ -129,7 +127,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
           className="group flex h-9 min-w-0 flex-1 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 text-left text-xs text-muted-foreground transition-all hover:border-cyan-300/25 hover:bg-white/[0.05] sm:max-w-[340px]"
         >
           <Search className="size-3.5 shrink-0 text-muted-foreground group-hover:text-cyan-300" />
-          <span className="truncate">Search rooms, people, pages…</span>
+          <span className="truncate">Search the hub…</span>
           <kbd className="ml-auto hidden shrink-0 items-center gap-0.5 rounded border border-white/10 bg-white/[0.04] px-1.5 py-0.5 text-[9px] font-medium text-muted-foreground sm:flex">
             <Command className="size-2.5" />K
           </kbd>
@@ -247,7 +245,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
               </DropdownMenuLabel>
               <div className="mb-1 flex items-center gap-1.5 px-2 pb-2 text-[10px] text-emerald-300">
                 <span className="size-1.5 rounded-full bg-emerald-400" />
-                Online · Nexus HQ
+                Online · Hub Agent Net
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -259,10 +257,31 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="gap-2 py-2 text-xs"
+                onSelect={() => navigate("/feed")}
+              >
+                <MessagesSquare className="size-3.5 text-cyan-300" />
+                Team feed
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="gap-2 py-2 text-xs"
+                onSelect={() => navigate("/bookings")}
+              >
+                <CalendarClock className="size-3.5 text-cyan-300" />
+                Bookings
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="gap-2 py-2 text-xs"
                 onSelect={() => navigate("/office")}
               >
                 <Boxes className="size-3.5 text-cyan-300" />
                 Open 3D office
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="gap-2 py-2 text-xs"
+                onSelect={() => navigate("/admin")}
+              >
+                <ShieldCheck className="size-3.5 text-cyan-300" />
+                Admin workspace
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -283,6 +302,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
         onOpenChange={setSearchOpen}
         rooms={office?.rooms ?? []}
         employees={office?.employees ?? []}
+        catalog={hub?.catalog ?? []}
       />
 
       <Dialog open={helpOpen} onOpenChange={setHelpOpen}>
@@ -291,10 +311,10 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
             <span className="mb-2 grid size-10 place-items-center rounded-xl bg-cyan-400/10 text-cyan-300">
               <CircleHelp className="size-5" />
             </span>
-            <DialogTitle>Operating the 3D floor</DialogTitle>
+            <DialogTitle>Finding your way around</DialogTitle>
             <DialogDescription>
-              The office is a real-time 3D model. Every room, desk and person on
-              it can be inspected.
+              The 3D office is a live model. Every room, desk and person on it
+              can be inspected, and the rest of the hub is one click away.
             </DialogDescription>
           </DialogHeader>
           <div className="mt-2 divide-y divide-white/[0.06] rounded-xl border border-white/[0.07] bg-white/[0.02]">
@@ -313,9 +333,9 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
           <div className="mt-3 flex items-start gap-2.5 rounded-xl border border-cyan-300/15 bg-cyan-400/[0.06] p-3">
             <CircleUserRound className="mt-0.5 size-4 shrink-0 text-cyan-300" />
             <p className="text-[11px] leading-relaxed text-slate-300">
-              Occupancy in this build comes from a local mock service. The data
-              interface is already shaped for Firestore, so live badge and desk
-              sensors can be connected without UI changes.
+              Posts, bookings and catalog entries are saved in this browser for
+              now. The service interfaces are already shaped for a shared
+              backend, so live team data can be connected without UI changes.
             </p>
           </div>
           <button

@@ -8,7 +8,7 @@ interface AsyncState<T> {
   error: string | null;
 }
 
-const useServiceQuery = <T,>(
+export const useServiceQuery = <T,>(
   load: () => Promise<T>,
   cache: { current: T | null },
 ) => {

@@ -5,9 +5,13 @@ import {
   ArrowRight,
   Boxes,
   CalendarClock,
+  CalendarPlus,
   DoorOpen,
+  LibraryBig,
   ListChecks,
+  MessagesSquare,
   RefreshCw,
+  ShieldCheck,
   TriangleAlert,
   UserCheck,
   Users,
@@ -26,6 +30,15 @@ import { UpcomingMeetings } from "@/components/dashboard/UpcomingMeetings";
 import { RoomAvailability } from "@/components/dashboard/RoomAvailability";
 import { NotificationPanel } from "@/components/notifications/NotificationPanel";
 import { useDashboardData, useOfficeSnapshot } from "@/hooks/use-office-data";
+import { useHubData } from "@/hooks/use-hub-data";
+import { useAuth } from "@/hooks/use-auth";
+import {
+  displayNameFor,
+  formatBookingDate,
+  formatRelative,
+  POST_TAG_META,
+  todayISO,
+} from "@/lib/hub-utils";
 import type { AppNotification } from "@/types/office";
 
 function LegendChip({ color, label }: { color: string; label: string }) {
@@ -67,6 +80,8 @@ function DashboardSkeleton() {
 export function DashboardView() {
   const { data, loading, error, reload } = useDashboardData();
   const office = useOfficeSnapshot();
+  const hub = useHubData();
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
 
   useEffect(() => {
@@ -82,6 +97,18 @@ export function DashboardView() {
       }),
     [],
   );
+
+  const displayName = displayNameFor(user);
+  const firstName = displayName === "Guest teammate" ? "" : displayName.split(/\s+/)[0];
+  const myBookings = (hub.data?.bookings ?? []).filter(
+    (booking) =>
+      booking.status === "confirmed" &&
+      booking.date >= todayISO() &&
+      booking.organizer === displayName,
+  );
+  const latestPosts = hub.data?.posts.slice(0, 3) ?? [];
+  const roomName = (roomId: string) =>
+    office.data?.rooms.find((room) => room.id === roomId)?.name ?? "Room";
 
   const cards = useMemo<StatisticsCardProps[]>(() => {
     if (!data) return [];
@@ -161,14 +188,14 @@ export function DashboardView() {
         <div>
           <p className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.22em] text-cyan-300/80">
             <span className="size-1.5 rounded-full bg-cyan-300 pulse-dot" />
-            {dateLabel} · Nexus HQ
+            {dateLabel} · Hub Agent Net
           </p>
           <h1 className="mt-2 font-display text-2xl font-semibold text-white sm:text-[30px]">
-            Office command center
+            {firstName ? `Welcome back, ${firstName}` : "Your workspace overview"}
           </h1>
           <p className="mt-1 max-w-xl text-xs leading-relaxed text-muted-foreground sm:text-[13px]">
-            Live presence, room availability and team load across the floor —
-            refreshed from the office service.
+            Your team, your rooms and your floor in one place. Check what is
+            moving before you post an update or book a space.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -196,6 +223,54 @@ export function DashboardView() {
           </Button>
         </div>
       </motion.div>
+
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+        {[
+          {
+            to: "/feed",
+            label: "Share an update",
+            hint: "Post to the team feed",
+            icon: MessagesSquare,
+          },
+          {
+            to: "/bookings",
+            label: "Book a room",
+            hint: "Reserve a space and time",
+            icon: CalendarPlus,
+          },
+          {
+            to: "/catalog",
+            label: "Browse the catalog",
+            hint: "Playbooks and templates",
+            icon: LibraryBig,
+          },
+          {
+            to: "/admin",
+            label: "Open admin",
+            hint: "Manage the workspace",
+            icon: ShieldCheck,
+          },
+        ].map((action) => (
+          <Link
+            key={action.to}
+            to={action.to}
+            className="group flex items-center gap-2.5 rounded-xl border border-white/[0.07] bg-white/[0.025] px-3 py-2.5 transition-colors hover:border-cyan-300/25 hover:bg-white/[0.05]"
+          >
+            <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-cyan-400/10 text-cyan-300">
+              <action.icon className="size-3.5" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[10.5px] font-medium text-slate-100">
+                {action.label}
+              </span>
+              <span className="hidden truncate text-[9px] text-muted-foreground sm:block">
+                {action.hint}
+              </span>
+            </span>
+            <ArrowRight className="size-3 shrink-0 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 group-hover:text-cyan-300" />
+          </Link>
+        ))}
+      </div>
 
       {error && (
         <div className="flex flex-col gap-3 rounded-2xl border border-rose-400/20 bg-rose-500/[0.06] p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -320,6 +395,119 @@ export function DashboardView() {
             >
               <ActivityFeed items={data.recentActivity} />
               <ActivityFooter total={data.recentActivity.length * 4} />
+            </Panel>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Panel
+              title="Your upcoming bookings"
+              description="Rooms reserved under your name."
+              action={
+                <Link
+                  to="/bookings"
+                  className="text-[10px] font-medium text-cyan-300 transition-colors hover:text-cyan-200"
+                >
+                  Book a room
+                </Link>
+              }
+            >
+              {myBookings.length === 0 ? (
+                <div className="flex flex-col items-start gap-2 rounded-xl border border-dashed border-white/10 px-3 py-5">
+                  <p className="text-[11px] text-muted-foreground">
+                    Nothing booked under your name yet. Reserve a room for your
+                    next meeting or walkthrough.
+                  </p>
+                  <Link
+                    to="/bookings"
+                    className="flex items-center gap-1 text-[10px] font-medium text-cyan-300 hover:text-cyan-200"
+                  >
+                    Open bookings
+                    <ArrowRight className="size-3" />
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  {myBookings.slice(0, 4).map((booking) => (
+                    <div
+                      key={booking.id}
+                      className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5"
+                    >
+                      <div className="w-12 shrink-0">
+                        <p className="font-display text-[10.5px] font-semibold tabular-nums text-slate-100">
+                          {booking.startTime}
+                        </p>
+                        <p className="text-[9px] tabular-nums text-muted-foreground">
+                          {booking.endTime}
+                        </p>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[11px] font-medium text-slate-100">
+                          {booking.title}
+                        </p>
+                        <p className="truncate text-[9px] text-muted-foreground">
+                          {formatBookingDate(booking.date)} · {roomName(booking.roomId)}
+                        </p>
+                      </div>
+                      <Link
+                        to="/bookings"
+                        className="grid size-6 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-white/10 hover:text-cyan-200"
+                        aria-label="Open bookings"
+                      >
+                        <ArrowRight className="size-3" />
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Panel>
+
+            <Panel
+              title="Latest from the team"
+              description="Recent posts in the hub feed."
+              action={
+                <Link
+                  to="/feed"
+                  className="text-[10px] font-medium text-cyan-300 transition-colors hover:text-cyan-200"
+                >
+                  Open feed
+                </Link>
+              }
+            >
+              <div className="space-y-1.5">
+                {latestPosts.map((post) => {
+                  const meta = POST_TAG_META[post.tag];
+                  return (
+                    <Link
+                      key={post.id}
+                      to="/feed"
+                      className="flex items-start gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5 transition-colors hover:bg-white/[0.05]"
+                    >
+                      <span
+                        className="grid size-7 shrink-0 place-items-center rounded-full text-[8px] font-bold text-[#06101f]"
+                        style={{ backgroundColor: post.authorAccent }}
+                      >
+                        {post.authorInitials}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[11px] font-medium text-slate-100">
+                          {post.title}
+                        </span>
+                        <span className="mt-0.5 flex items-center gap-1.5 text-[9px] text-muted-foreground">
+                          {post.authorName} · {formatRelative(post.createdAt)}
+                          <span className={`rounded-full border px-1.5 py-px text-[8px] ${meta.className}`}>
+                            {meta.label}
+                          </span>
+                        </span>
+                      </span>
+                    </Link>
+                  );
+                })}
+                {latestPosts.length === 0 && (
+                  <p className="rounded-xl border border-dashed border-white/10 px-3 py-5 text-center text-[10px] text-muted-foreground">
+                    No posts yet. Start the conversation in the feed.
+                  </p>
+                )}
+              </div>
             </Panel>
           </div>
 
